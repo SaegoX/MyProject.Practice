@@ -1,38 +1,120 @@
-﻿using System.Text;
-using Ans.Net10.Common;
+﻿using Ans.Net10.Common;
+using System.Diagnostics;
+using System.Text;
+using System.Xml;
+using System.Xml.Serialization;
 
 namespace Practice.ConsoleApp
 {
-    internal class Program
+
+
+    [XmlRoot("rasp")]
+    public class RaspModel
+    {
+        [XmlElement("subject")]
+        public SubjectModel[] Subject { get; set; }
+    }
+
+
+    public class SubjectModel
+    {
+
+        /* serialization properties */
+
+        [XmlAttribute("IDSubg")]
+        public string IDSubg { get; set; }
+
+        [XmlAttribute("disc")]
+        public string Disc { get; set; }
+
+        [XmlAttribute("chair")]
+        public string Chair { get; set; }
+
+        [XmlAttribute("id_prep")]
+        public string Id_prepRaw { get; set; }
+
+        [XmlAttribute("prep")]
+        public string PrepRaw { get; set; }
+
+        [XmlAttribute("id_group")]
+        public string Id_groupRaw { get; set; }
+
+        [XmlAttribute("group")]
+        public string GroupRaw { get; set; }
+
+        [XmlAttribute("day")]
+        public string DayRaw { get; set; }
+
+        [XmlAttribute("less")]
+        public string Less { get; set; }
+
+        [XmlAttribute("buildings")]
+        public string buildings { get; set; }
+
+        [XmlAttribute("rooms")]
+        public string rooms { get; set; }
+
+        /* readonly properties */
+
+        [XmlIgnore]
+        public DateOnly? Day
+        {
+            get => field ??= DayRaw.ToDateOnly();
+        }
+
+        [XmlIgnore]
+        public int[] Id_prep
+        {
+            get => field ??= Id_prepRaw.ToIntArray();
+        }
+        //Вручную изменить IntArray сам метод, потому что в преподах ; не пройдёт как в Id
+    }
+
+
+
+
+
+    // Дату изменить тип значения на Date.Time
+    // Изменить тип значения для Id_group и Id_prep, чтобы можно было вывести их как Int(подсказка: нужно выводить их как массив данных)
+    /* https://translated.turbopages.org/proxy_u/en-ru.ru.8559a855-6a198994-7364fb80-74722d776562/https/stackoverflow.com/questions/20646278/split-field-value-from-xml-string-not-formatted */
+
+    public class Program
     {
         static void Main()
         {
 
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
-            Console.WriteLine($"libcommoninfo.getname(): {LibCommonInfo.GetName()}");
-            Console.WriteLine($"libcommoninfo.getdescription(): {LibCommonInfo.GetDescription()}");
-            Console.WriteLine($"libcommoninfo.getversion(): {LibCommonInfo.GetVersion()}");
-            Console.WriteLine();
+            using var client1 = new HttpClient();
 
-            var s1 = _Consts.GET_RANDOM_SAMPLE_RU();
+            string url1 = "https://guap.ru/content/rasp/exam/current.xml";
 
-            Console.WriteLine($"sample: {s1.GetStartWithACapital()}");
+            string data1 = client1.GetStringAsync(url1).Result;
 
-            var a1 = s1.SplitFix(" ", 20);
-            var i1 = 0;
-            foreach (var item1 in a1)
+            var obj1 = SuppXml.GetObjectFromXml<RaspModel>(data1);
+
+
+            foreach (var element1 in obj1.Subject)
             {
-                Console.WriteLine($"{++i1}. {item1}");
+
+                if (element1.Id_prep?.Length > 1)
+                {
+                    Console.Write($"Дата: {element1.DayRaw} = {element1.Day} ");
+                    Console.Write("Преподы: ");
+                    foreach (var prep1 in  element1.Id_prep)
+                        Console.Write($"{prep1},");
+                    Console.WriteLine();
+                }
+
             }
+
             Console.ReadLine();
 
-            Console.WriteLine($"suppapp.currentpath: {SuppApp.CurrentPath}");
-            Console.ReadLine();
-
-            var amount1 = 12345;
-            Console.WriteLine($"suppapp.currentpath: {SuppLangRu.GetAmountInRublesInWords(amount1, true)}");
-            Console.ReadLine();
         }
+
     }
 }
+
+
+
+
