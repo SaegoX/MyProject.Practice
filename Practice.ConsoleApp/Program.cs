@@ -2,11 +2,11 @@
 using System.Diagnostics;
 using System.Text;
 using System.Xml;
+using System.Xml.Linq;
 using System.Xml.Serialization;
 
 namespace Practice.ConsoleApp
 {
-
 
     [XmlRoot("rasp")]
     public class RaspModel
@@ -67,10 +67,42 @@ namespace Practice.ConsoleApp
         {
             get => field ??= Id_prepRaw.ToIntArray();
         }
-        //Вручную изменить IntArray сам метод, потому что в преподах ; не пройдёт как в Id
+        [XmlIgnore]
+        public int[] Id_group
+        {
+            get => field ??= Id_groupRaw.ToIntArray();
+        }
+        [XmlIgnore]
+        public string[] Prep
+        {
+            get
+            {
+                if (string.IsNullOrWhiteSpace(PrepRaw))
+                    return Array.Empty<string>();
+
+                return PrepRaw
+                    .Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(item => item.Trim())
+                    .ToArray();
+            }
+        }
     }
 
+    //public static void PrepodaArray(string[] prep)
+    //    {
+    //        foreach (var element1 in obj1.Subject)
+    //        {
 
+    //            if (element1.Id_prep?.Length > 1)
+    //            {
+    //                Console.Write($"Дата: {element1.DayRaw} = {element1.Day} ");
+    //                Console.Write($"Преподы: {string.Join(",", element1.Id_prep)}");
+    //                Console.WriteLine();
+    //            }
+
+
+    //        }
+    //    }
 
 
 
@@ -93,19 +125,41 @@ namespace Practice.ConsoleApp
 
             var obj1 = SuppXml.GetObjectFromXml<RaspModel>(data1);
 
-
             foreach (var element1 in obj1.Subject)
             {
 
                 if (element1.Id_prep?.Length > 1)
                 {
                     Console.Write($"Дата: {element1.DayRaw} = {element1.Day} ");
-                    Console.Write("Преподы: ");
-                    foreach (var prep1 in  element1.Id_prep)
-                        Console.Write($"{prep1},");
+                    Console.Write($"Преподы: {string.Join(",", element1.Id_prep)}");
+                    // *Проблема - при дальнейшей работе с данными Id_prep они безвозвратно становятся типом string, а так же единой строкой. 
+
+
+
+                    //Console.Write($"Дата: {element1.DayRaw} = {element1.Day} ");                  \
+                    //Console.Write("Преподы: ");                                               Оригинал
+                    //foreach (var prep1 in element1.Id_prep)                                        |   
+                    //    Console.Write($"{prep1},");                                               /
+
+
+                    //Console.Write("Группы: ");                            \
+                    //foreach (var group1 in element1.Id_group)     Аналогия с id групп
+                    //    Console.Write($"{group1},");                      /
+
+
                     Console.WriteLine();
                 }
 
+
+            }
+
+            foreach (var element2 in obj1.Subject)
+            {
+                if (element2.Prep?.Length > 1)
+                {
+                    Console.Write($"ФИО препода: {string.Join(", ", element2.Prep)}");
+                    Console.WriteLine();
+                }
             }
 
             Console.ReadLine();
