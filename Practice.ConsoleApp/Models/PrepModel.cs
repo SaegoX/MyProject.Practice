@@ -8,8 +8,8 @@ namespace Practice.ConsoleApp.Models
     public class PrepModel
     {
 
-        public int PrepId { get; set; }
-        public string Prep {  get; set; }
+        public int Id { get; set; }
+        public string Name {  get; set; }
 
     }
 

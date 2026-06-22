@@ -7,8 +7,8 @@ namespace Practice.ConsoleApp.Models
     public class GroupModel
     {
 
-        public int GroupId { get; set; }
-        public string Group { get; set; }
+        public int Id { get; set; }
+        public string Name { get; set; }
 
     }
 }

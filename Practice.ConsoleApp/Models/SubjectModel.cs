@@ -37,10 +37,10 @@ namespace Practice.ConsoleApp.Models
         public string Less { get; set; }
 
         [XmlAttribute("buildings")]
-        public string buildings { get; set; }
+        public string Buildings { get; set; }
 
         [XmlAttribute("rooms")]
-        public string rooms { get; set; }
+        public string Rooms { get; set; }
 
         /* readonly properties */
 

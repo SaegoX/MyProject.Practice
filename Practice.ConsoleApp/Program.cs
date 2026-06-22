@@ -1,71 +1,37 @@
 ﻿using Ans.Net10.Common;
 using Practice.ConsoleApp.Models;
 using System.Text;
-using System.Xml.Linq;
 
 namespace Practice.ConsoleApp
 {
 
-    //public static void PrepodaArray(string[] prep)
-    //    {
-    //        foreach (var element1 in obj1.Subject)
-    //        {
-
-    //            if (element1.Id_prep?.Length > 1)
-    //            {
-    //                Console.Write($"Дата: {element1.DayRaw} = {element1.Day} ");
-    //                Console.Write($"Преподы: {string.Join(",", element1.Id_prep)}");
-    //                Console.WriteLine();
-    //            }
-
-
-    //        }
-    //    }
-
-
-
-    // Дату изменить тип значения на Date.Time
-    // Изменить тип значения для Id_group и Id_prep, чтобы можно было вывести их как Int(подсказка: нужно выводить их как массив данных)
-    /* https://translated.turbopages.org/proxy_u/en-ru.ru.8559a855-6a198994-7364fb80-74722d776562/https/stackoverflow.com/questions/20646278/split-field-value-from-xml-string-not-formatted */
-
     public class Program
     {
+
+        static readonly List<PrepModel> ListPreps = [];
+        static readonly List<GroupModel> ListGroup = [];
+        static readonly List<ExamModel> ListExam = [];
 
 
 
         static void Main()
         {
-
-
-
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
-            using var client1 = new HttpClient();
-            string url1 = "https://guap.ru/content/rasp/exam/current.xml";
+            var source1 = GetSourceData("https://guap.ru/content/rasp/exam/current.xml");
 
-
-            string data1 = client1.GetStringAsync(url1).Result;
-
-            var obj1 = SuppXml.GetObjectFromXml<RaspModel>(data1);
-
-            var preps1 = new List<PrepModel>();
-            var group1 = new List<GroupModel>();
-
-            foreach (var element1 in obj1.Subject)
+            foreach (var element1 in source1.Subject)
             {
-                Console.Write(element1.Day + " ");
-                if (element1.PrepIds?.Length > 0)
-
-
-                    for (int i1 = 0; i1 < ; })
-
-                    foreach (var prep1 in element1.PrepIds)
-                    {
-                        Console.Write(prep1 + ", ");
-                    }
-                Console.WriteLine();
+                AddNewPrep(element1);
+                AddNewGroup(element1);
+                AddExam(element1);
             }
 
+            //OutPreps();
+            //Console.ReadLine();
+            //OutGroups();
+            //Console.ReadLine();
+            OutExam();
 
             Console.ReadLine();
 
@@ -74,26 +40,108 @@ namespace Practice.ConsoleApp
 
 
 
+        /* methods */
 
 
-        static void OutItem(
-          SubjectModel item)
+        static void AddNewPrep(
+          SubjectModel element1)
         {
-            Console.WriteLine($"Дата: {item.DayRaw} = {item.Day}");
-            Console.Write($"   Преподы: {item.PrepIds.MakeFromCollection(x => x.ToString(), "[{0}]", null, ", ")} ");
-            Console.WriteLine(item.PrepNames.MakeFromCollection(x => x, null, "\"{0}\"", ", "));
-            Console.Write($"   Группы: {item.GroupIds.MakeFromCollection(x => x.ToString(), "[{0}]", null, ", ")} ");
-            Console.WriteLine(item.GroupNames.MakeFromCollection(x => x, null, "\"{0}\"", ", "));
+            var count1 = element1.PrepIds?.Length ?? 0;
+            if (count1 > 0)
+            {
+                for (int i1 = 0; i1 < count1; i1++)
+                {
+                    var prep1 = new PrepModel
+                    {
+                        Id = element1.PrepIds[i1],
+                        Name = element1.PrepNames[i1],
+                    };
+                    if (!ListPreps.Any(x => x.Id == prep1.Id))
+                        ListPreps.Add(prep1);
+                }
+            }
+        }
+
+        static void AddNewGroup(
+         SubjectModel element1)
+        {
+            var count1 = element1.GroupIds?.Length ?? 0;
+            if (count1 > 0)
+            {
+                for (int i1 = 0; i1 < count1; i1++)
+                {
+                    var group1 = new GroupModel
+                    {
+                        Id = element1.GroupIds[i1],
+                        Name = element1.GroupNames[i1],
+                    };
+                    if (!ListGroup.Any(x => x.Id == group1.Id))
+                        ListGroup.Add(group1);
+                }
+            }
         }
 
 
+        static void AddExam(
+          SubjectModel element1)
+        {
+            var group1 = new ExamModel
+            {
+                Id = element1.IDSubg,
+                Date = element1.Day,
+                Building = element1.Buildings,
+                Groups = element1.GroupRaw,
+                Less = element1.Less,
+                Preps = element1.PrepRaw,
+                Room = element1.Rooms,
+                Disc = element1.Disc
+            };
+            ListExam.Add(group1);
+        }
+
+
+        //static void OutPreps()
+        //{
+        //    Console.WriteLine("Список преподавателей:");
+        //    foreach (var prep1 in ListPreps.OrderBy(x => x.Name))
+        //    {
+        //        Console.WriteLine($"{prep1.Id}. {prep1.Name}");
+        //    }
+        //}
+
+
+        //static void OutGroups()
+        //{
+        //    Console.WriteLine("Список групп:");
+        //    foreach (var group1 in ListGroup.OrderBy(x => x.Name))
+        //    {
+        //        Console.WriteLine($"{group1.Id}. {group1.Name}");
+        //    }
+        //}
+
+
+        static void OutExam()
+        {
+            Console.WriteLine("Экзамены");
+            foreach (var exam1 in ListExam.OrderBy(x => x.Date))
+            {
+                Console.WriteLine($"{exam1.Id}. {exam1.Date}. {exam1.Less}. {exam1.Room}. {exam1.Disc}.");
+            }
+        }
+
+
+
+        /* functions */
+
+
+        static RaspModel GetSourceData(
+          string url)
+        {
+            var client1 = new HttpClient();
+            string data1 = client1.GetStringAsync(url).Result;
+            return SuppXml.GetObjectFromXml<RaspModel>(data1);
+        }
+
     }
 
-
 }
-
-
-
-
-
-
