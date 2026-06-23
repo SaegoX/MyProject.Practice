@@ -125,7 +125,7 @@ namespace Practice.ConsoleApp
             Console.WriteLine("Экзамены");
             foreach (var exam1 in ListExam.OrderBy(x => x.Date))
             {
-                Console.WriteLine($"{exam1.Id}. {exam1.Date}. {exam1.Less}. {exam1.Room}. {exam1.Disc}.");
+                Console.WriteLine($"Идентификатор: {exam1.Id}. Дата экзамена: {exam1.Date}. Смена {exam1.Less}. Аудитория: {exam1.Room}. Название:{exam1.Disc}.");
             }
         }
 
